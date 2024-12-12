@@ -105,6 +105,8 @@ static struct cnss_plat_data *plat_env;
 
 static bool cnss_allow_driver_loading;
 
+static DECLARE_RWSEM(cnss_pm_sem);
+
 static struct cnss_fw_files FW_FILES_QCA6174_FW_3_0 = {
 	"qwlan30.bin", "bdwlan30.bin", "otp30.bin", "utf30.bin",
 	"utfbd30.bin", "epping30.bin", "evicted30.bin"
@@ -128,6 +130,18 @@ bool cnss_check_driver_loading_allowed(void)
 {
 	return cnss_allow_driver_loading;
 }
+
+void cnss_lock_pm_sem(struct device *dev)
+{
+	down_read(&cnss_pm_sem);
+}
+EXPORT_SYMBOL(cnss_lock_pm_sem);
+
+void cnss_release_pm_sem(struct device *dev)
+{
+	up_read(&cnss_pm_sem);
+}
+EXPORT_SYMBOL(cnss_release_pm_sem);
 
 #ifdef CONFIG_CNSS_SUPPORT_DUAL_DEV
 static void cnss_set_plat_priv(struct platform_device *plat_dev,
